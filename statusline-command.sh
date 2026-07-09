@@ -11,8 +11,9 @@ WEEK=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 FIVE_H_RESET=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 WEEK_RESET=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 VERSION=$(echo "$input" | jq -r '.version // empty')
+ACCOUNT_EMAIL="aliosdeveloper@gmail.com"
 
-CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; RESET='\033[0m'
+CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; MAGENTA='\033[35m'; RESET='\033[0m'
 
 # Context window bar color
 if [ "$PCT" -ge 90 ]; then BAR_COLOR="$RED"
@@ -26,10 +27,10 @@ BAR="${FILL// /█}${PAD// /░}"
 MINS=$((DURATION_MS / 60000)); SECS=$(((DURATION_MS % 60000) / 1000))
 
 BRANCH=""
-if git rev-parse --git-dir > /dev/null 2>&1; then
-  BRANCH_NAME=$(git branch --show-current 2>/dev/null)
+if git --no-optional-locks rev-parse --git-dir > /dev/null 2>&1; then
+  BRANCH_NAME=$(git --no-optional-locks branch --show-current 2>/dev/null)
   DIRTY=""
-  [ -n "$(git status --porcelain 2>/dev/null)" ] && DIRTY="*"
+  [ -n "$(git --no-optional-locks status --porcelain 2>/dev/null)" ] && DIRTY="*"
   BRANCH=" | 🌿 ${BRANCH_NAME}${DIRTY}"
 fi
 
@@ -80,7 +81,7 @@ time_until_long() {
 
 VER_STR=""
 [ -n "$VERSION" ] && VER_STR=" ${CYAN}v${VERSION}${RESET}"
-echo -e "${CYAN}[$MODEL]${RESET}${VER_STR} 📁 ${DIR##*/}$BRANCH"
+echo -e "${CYAN}[$MODEL]${RESET}${VER_STR} 📁 ${DIR##*/}$BRANCH | ${MAGENTA}✉ ${ACCOUNT_EMAIL}${RESET}"
 COST_FMT=$(printf '$%.2f' "$COST")
 echo -e "ctx ${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"
 
