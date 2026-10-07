@@ -74,6 +74,7 @@ The statusline will appear at the bottom of your Claude Code session.
 - **`◆ Model & Effort ▾`** — a button at the right end of the footer. It opens a panel above the prompt where you click a model (Haiku / Sonnet / Opus / Fable) or an effort level (Low → Max). A click runs `/model` or `/effort` for you. `/mp` toggles the same panel.
 - **`● Progress`** — a button beside it that shows or hides the progress box.
 - **Progress box** — while a prompt runs: its title, a live timer, `Step 2 of 4`, a progress bar, and one row per step (`Working` / `Next` / `Done`). It turns green with `✔ All done · took 1m 47s` when the turn ends. Steps come from the model's task list; with no task list, each tool call is a step.
+- **Clean View** — a setting in the panel (off by default). When on, tool call rows, their results and the folded "Read 3 files" lines are hidden from the transcript, and the progress box is always shown.
 - **Agent count** — every 3 seconds it writes the number of running agents to `~/.claude/statusline-agents/<session id>`, which the status line script reads for the `◇ N agents` segment.
 
 Load it for one session:

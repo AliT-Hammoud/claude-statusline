@@ -78,6 +78,11 @@ async function toggleProgress($: EngineInterface) {
   await update($, run, r => (r === null ? r : { ...r, isHidden: false }))
 }
 
+async function toggleClean($: EngineInterface) {
+  await update($, pick, p => ({ ...p, isClean: !p.isClean }))
+  await update($, run, r => (r === null ? r : { ...r, isHidden: false }))
+}
+
 function toggle($: EngineInterface) {
   return update($, pick, p => ({ ...p, isOpen: !p.isOpen }))
 }
@@ -209,6 +214,31 @@ export const register: Register = on => {
     return ran
   }).catch(($, e, next) => next(e))
 
+  // Clean View: the tool rows give way to the checklist. ctrl+o still unfolds a group.
+  on('ui.render', { component: 'ToolUse' }, async ($, e, next) => {
+    const { Box } = $.ui.resolve(e)
+
+    return (await read($, pick)).isClean ? <Box /> : next(e)
+  })
+
+  on('ui.render', { component: 'ToolResult' }, async ($, e, next) => {
+    const { Box } = $.ui.resolve(e)
+
+    return (await read($, pick)).isClean ? <Box /> : next(e)
+  })
+
+  on('ui.render', { component: 'ToolProgress' }, async ($, e, next) => {
+    const { Box } = $.ui.resolve(e)
+
+    return (await read($, pick)).isClean ? <Box /> : next(e)
+  })
+
+  on('ui.render', { component: 'ToolGroup' }, async ($, e, next) => {
+    const { Box } = $.ui.resolve(e)
+
+    return (await read($, pick)).isClean && !e.props.isExpanded ? <Box /> : next(e)
+  })
+
   // The footer's right end, on the status line's row: the button that opens the panel.
   on('ui.render', { component: 'SessionMode' }, async ($, e) => {
     const { Box, Button, Text } = $.ui.resolve(e)
@@ -237,7 +267,7 @@ export const register: Register = on => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     const state = await read($, pick)
     const turn = await read($, run)
-    const hasTurn = turn !== null && !turn.isHidden && !state.isProgressOff
+    const hasTurn = turn !== null && (state.isClean === true || (!turn.isHidden && !state.isProgressOff))
     if (e.props.hasSurvey || (!state.isOpen && !hasTurn)) {
       return next(e)
     }
@@ -330,6 +360,18 @@ export const register: Register = on => {
                     <Button key={`effort-${x.id}`} plain label={` ${x.label} `} onPress={() => choose('effort', x.id)} />
                   </Box>
                 ))}
+              </Box>
+              <Text> </Text>
+              <Text dimColor>── S E T T I N G S ──────────────────────────────────</Text>
+              <Box justifyContent="space-between">
+                <Box columnGap={1}>
+                  <Text color={state.isClean ? GREEN : undefined} dimColor={!state.isClean}>{state.isClean ? '●' : '○'}</Text>
+                  <Text bold>Clean View</Text>
+                  <Text dimColor> simple checklist</Text>
+                </Box>
+                <Box backgroundColor={state.isClean ? GREEN : undefined}>
+                  <Button key="clean" plain label={state.isClean ? ' ● On ' : ' ○ Off '} onPress={() => toggleClean($)} />
+                </Box>
               </Box>
             </Box>
           </Box>

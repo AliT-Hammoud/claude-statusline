@@ -1,4 +1,4 @@
-export type Pick = { model: string | null; effort: string | null; isOpen: boolean; isProgressOff?: boolean }
+export type Pick = { model: string | null; effort: string | null; isOpen: boolean; isProgressOff?: boolean; isClean?: boolean }
 
 export type Step = { id: string; label: string; status: 'pending' | 'running' | 'done' }
 
