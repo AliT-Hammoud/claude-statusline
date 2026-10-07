@@ -11,7 +11,10 @@ WEEK=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 FIVE_H_RESET=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 WEEK_RESET=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 VERSION=$(echo "$input" | jq -r '.version // empty')
-ACCOUNT_EMAIL="aliosdeveloper@gmail.com"
+SESSION_ID=$(echo "$input" | jq -r '.session_id // empty')
+# Running-agent count, written by the model-picker mod; absent when the mod isn't loaded
+AGENTS=$(cat "$HOME/.claude/statusline-agents/$SESSION_ID" 2>/dev/null)
+ACCOUNT_EMAIL=$(jq -r '.oauthAccount.emailAddress // "unknown"' "$HOME/.claude.json" 2>/dev/null)
 
 CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; MAGENTA='\033[35m'; RESET='\033[0m'
 
@@ -83,7 +86,12 @@ VER_STR=""
 [ -n "$VERSION" ] && VER_STR=" ${CYAN}v${VERSION}${RESET}"
 echo -e "${CYAN}[$MODEL]${RESET}${VER_STR} 📁 ${DIR##*/}$BRANCH | ${MAGENTA}✉ ${ACCOUNT_EMAIL}${RESET}"
 COST_FMT=$(printf '$%.2f' "$COST")
-echo -e "ctx ${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"
+AGENTS_STR=""
+if [ -n "$AGENTS" ]; then
+  AGENT_WORD="agents"; [ "$AGENTS" = "1" ] && AGENT_WORD="agent"
+  AGENTS_STR=" | ${CYAN}◇ ${AGENTS} ${AGENT_WORD}${RESET}"
+fi
+echo -e "ctx ${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s${AGENTS_STR}"
 
 if [ -n "$FIVE_H" ] || [ -n "$WEEK" ]; then
   RATE_LINE=""

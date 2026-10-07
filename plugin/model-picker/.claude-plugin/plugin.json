@@ -1,0 +1,1 @@
+{ "name": "model-picker", "version": "0.1.0", "description": "Clickable model and effort buttons above the prompt", "types": "./types/index.d.ts" }
